@@ -1,0 +1,53 @@
+DECLARE @name VARCHAR(256)
+DECLARE @backuppath NVARCHAR(256) 
+DECLARE @datapath VARCHAR(256) 
+DECLARE @logpath VARCHAR(256) 
+DECLARE @backupfileName VARCHAR(256) 
+DECLARE @datafileName VARCHAR(256) 
+DECLARE @logfileName VARCHAR(256) 
+DECLARE @logName VARCHAR(256)
+SET @backuppath = 'D:\PajumBacup\' 
+SET @datapath = 'D:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA'
+SET @logpath = 'D:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA'
+print 'backup path is ' + @backuppath
+print 'data path is ' + @datapath
+print 'log path is ' + @logpath
+
+DROP TABLE #files
+CREATE TABLE #files(fname varchar(200),depth int, file_ int)
+INSERT #files
+EXECUTE master.dbo.xp_dirtree @backuppath, 1, 1
+SELECT * FROM #files
+
+
+DECLARE files CURSOR FOR
+SELECT fname FROM #files 
+OPEN files
+FETCH NEXT FROM files INTO @name   
+WHILE @@FETCH_STATUS = 0  
+
+BEGIN  
+           DECLARE @cleanname AS VARCHAR(255)
+           SET @cleanname  = REPLACE(@name, '.BAK', '')
+           PRINT @cleanname
+       SET @backupfileName = @backuppath + @name
+       SET @datafileName = @datapath + @cleanname   + '.MDF'
+       SET @logfileName = @logpath + @cleanname   + '_log.LDF'
+        SET @logName = @cleanname + '_log'
+        print 'backup file is ' + @backupfileName
+        print 'data file is ' + @datafileName
+        print 'log file is ' + @logfileName
+ 
+       RESTORE DATABASE @cleanname
+        FROM DISK = @backupfileName
+        WITH REPLACE,
+        MOVE @cleanname
+        TO @datafileName,
+        MOVE @logName
+        TO @logfileName
+       FETCH NEXT FROM files INTO @name  
+
+
+END 
+CLOSE files  
+DEALLOCATE #file
