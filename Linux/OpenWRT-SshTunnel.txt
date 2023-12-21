@@ -1,0 +1,178 @@
+opkg update
+opkg install openssh-keygen sshtunnel
+
+ssh-keygen -b 2048 -t rsa
+enter
+enter
+
+
+cope pubkey from: /root/.ssh/id_rsa.pub
+
+
+past to destinatin /root/.ssh/authorized_keys
+
+
+/etc/config/sshtunnel
+
+------------------------------------------------------
+#
+# password authentication is not possible, public key authentication must be used.
+# set "option IdentityFile" to he file from which the identity (private key) for RSA or DSA authentication is read.  
+# The default is ~/.ssh/identity for protocol version 1, and ~/.ssh/id_rsa and ~/.ssh/id_dsa for protocol version 2.
+# ssh will also try to load certificate information from the filename obtained by appending -cert.pub to identity filenames.
+#
+
+config server disney
+	option user			root
+	option hostname			****.*****.******
+	option port			3031
+#	option retrydelay		1	
+#	option CheckHostIP		yes
+#	option Compression		no
+#	option CompressionLevel		6
+	option IdentityFile		/root/.ssh/id_rsa
+#	option LogLevel			INFO
+#	option PKCS11Provider		/lib/pteidpkcs11.so
+#	option ServerAliveCountMax	3
+#	option ServerAliveInterval	0
+#	option StrictHostKeyChecking	accept-new
+#	option TCPKeepAlive		yes
+#	option VerifyHostKeyDNS		yes
+
+# tunnelR(emote) - when the connection will be initiated to the R(emote) endpoint at
+# remoteaddress:remoteport and then forwarded to localaddress:localport
+#
+#config tunnelR http
+#	option server		disney
+#	option remoteaddress	*
+#	option remoteport	9009
+#	option localaddress	192.168.1.13
+#	option localport	80
+
+# tunnelL(ocal) - when the connection will be initiated to the L(ocal) endpoint at
+# localaddress:localport and then forwarded to remoteaddress:remoteport 
+#
+#config tunnelL test
+#	option server		disney
+#	option localaddress	*
+#	option localport	1022
+#	option remoteaddress	secretserver.disney.com
+#	option remoteport	22
+
+# tunnelD(ynamic) - when the connection will be initiated with the SOCKS4 or SOCKS5 protocol
+# to the local endpoint at localaddress:localport and then forwarded over the remote host
+#
+config tunnelD proxy
+	option server		disney
+	option localaddress	*
+	option localport	4055
+
+# tunnelW - creates TUN/TAP devices on client and server to establish a VPN tunnel between them
+# vpntypes:
+#  point-to-point = TUN
+#  ethernet = TAP
+#
+#config tunnelW proxy
+#	option server           disney
+#	option vpntype		point-to-point|ethernet
+#	option localdev		any|0|1|2|...
+#	option remotedev	any|0|1|2|...
+
+
+
+------------------------------------------------------
+
+
+
+
+
+
+
+
+/etc/init.d/sshtunnel enable
+/etc/init.d/sshtunnel start
+netstat -tunlp | grep ssh
+
+
+
+
+
+-------------------Resize Partion:--------------------------------------------
+opkg update && opkg install lsblk fdisk losetup resize2fs
+
+
+fdisk /dev/sda
+p
+d
+2
+n
+33792
+enter
+n
+w
+
+lsblk -o PATH,SIZE,PARTUUID
+
+BOOT="$(sed -n -e "\|\s/boot\s.*$|{s///p;q}" /etc/mtab)"
+DISK="${BOOT%%[0-9]*}"
+PART="$((${BOOT##*[^0-9]}+1))"
+ROOT="${DISK}${PART}"
+LOOP="$(losetup -f)"
+losetup ${LOOP} ${ROOT}
+resize2fs -f ${LOOP}
+
+reboot
+
+
+
+
+
+------------------------------Install Passwall:---------------------
+sed -i 's/option check_signature/# option check_signature/g' /etc/opkg.conf
+echo "src/gz custom_generic https://raw.githubusercontent.com/lrdrdn/my-opkg-repo/main/generic" >> /etc/opkg/customfeeds.conf
+echo "src/gz custom_arch https://raw.githubusercontent.com/lrdrdn/my-opkg-repo/main/$(grep "OPENWRT_ARCH" /etc/os-release | awk -F '"' '{print $2}')" >> /etc/opkg/customfeeds.conf
+
+opkg update
+opkg install luci-app-passwall
+
+
+opkg install  ipset
+opkg install ipt2socks 
+opkg install  iptables 
+opkg install  iptables-legacy 
+opkg install  iptables-mod-conntrack-extra 
+opkg install iptables-mod-iprange 
+opkg install  iptables-mod-socket 
+opkg install  iptables-mod-tproxy 
+opkg install  kmod-ipt-nat 
+opkg install  dnsmasq-full
+
+
+
+
+
+---------------Firewall-------------------
+vi /etc/csf/csf.conf
+csf -r
+
+install:
+yum install perl-libwww-perl
+cd /usr/src
+wget https://download.configserver.com/csf.tgz
+tar xzf csf.tgz
+cd csf
+sh install.sh
+perl /usr/local/csf/bin/csftest.pl
+systemctl stop firewalld
+systemctl disable firewalld
+systemctl restart {csf,lfd}
+systemctl enable {csf,lfd}
+systemctl is-active {csf,lfd}
+csf -v
+
+--------------ssh-------------------
+vi /etc/ssh/sshd_config
+ss -tlpn| grep ssh
+netstat -tlpn| grep ssh
+systemctl restart sshd
+
