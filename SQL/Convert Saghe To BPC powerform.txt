@@ -1,0 +1,23 @@
+
+--Saghe to BPC
+update [dbo].[AllWebParts]
+ set tp_Assembly='BPC.PowerWebForms.WebParts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6c1e91176caf1bb7'
+ where tp_Assembly like N'%saghe%'
+ 
+ update [dbo].[AllWebParts]
+ set tp_WebPartTypeId='6B22B967-7DA1-7EA2-8305-4FC855B14A60'
+ where tp_WebPartTypeId='0273FA19-4F87-392A-2E3A-4607AA7AF583'
+
+ --BPC to Saghe
+
+ 
+ update [dbo].[AllWebParts]
+ set tp_Assembly='Sagheh.CMP.SP2016.PowerForms.Webparts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=18f248be94fad860'
+ where tp_Assembly like N'%BPC.PowerWebForms%'
+
+
+
+
+ update [dbo].[AllWebParts]
+ set tp_WebPartTypeId='0273FA19-4F87-392A-2E3A-4607AA7AF583'
+ where tp_WebPartTypeId='6B22B967-7DA1-7EA2-8305-4FC855B14A60'
