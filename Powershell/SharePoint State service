@@ -1,0 +1,1 @@
+New-SPStateServiceDatabase -Name "Service_StateService"  -DatabaseServer "sp-db" | New-SPStateServiceApplication -Name "ServiceApplication_StateService" | New-SPStateServiceApplicationProxy -Name "ServiceApplication_StateServicProxy" -DefaultProxyGroup > $nul
