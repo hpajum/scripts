@@ -1,6 +1,6 @@
-$web = Get-SPWeb "https://cometportal.com/og"
-$ListName = "Trade Case Transit Document"
-$TradeCaseListName="Trade Cases"
+$web = Get-SPWeb "xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+$ListName = "xxxxxxxxxxxxxxxxxxxxxxxxx"
+$TradeCaseListName="xxxxxxxxxxxxxxxxxxxxxxxxxxx"
 $List = $Web.Lists[$ListName]
 $TradeCaseList = $Web.Lists[$TradeCaseListName]
 $ListItems = $List.items 
