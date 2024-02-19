@@ -1,0 +1,35 @@
+$web = Get-SPWeb "https://cometportal.com/og"
+$ListName = "Trade Case Transit Document"
+$TradeCaseListName="Trade Cases"
+$List = $Web.Lists[$ListName]
+$TradeCaseList = $Web.Lists[$TradeCaseListName]
+$ListItems = $List.items 
+foreach ($Item in $ListItems) {
+    $status = $Item.Workflows.StatusText
+    $ItemID = $Item.ID
+    if ($status -ilike "*error*") {
+    $status
+    $ItemID
+    $WorkflowName = "TradeCaseTransitAppendix-SetPermission"
+    $instanceid=$Item.Workflows.instanceid
+    $workflows=$Item.Workflows
+    foreach ($workflow in $workflows) {
+        [Microsoft.SharePoint.Workflow.SPWorkflowManager]::CancelWorkflow($workflow);
+        write-output "Workflow cancelled" 
+        }
+    $TradeCaseID=$Item.Properties.TradeCase
+    $TradeCaseItem= $TradeCaseList.items | where{ $_["ID"] -eq $TradeCaseID }
+    $TradeCaseTitle= $TradeCaseItem.Title
+    $OtherDocOnTradeCase = $List.items | where{  ($_.Properties.TradeCase -eq $TradeCaseID) -and ($_.ID -eq $ItemID ) }
+    $Count = $OtherDocOnTradeCase.Count
+    if ($Count -le 9) {$Count = "0" + $($Count)}
+    $Rename= $($TradeCaseTitle) + "-" + $($Count)
+    $Item.Properties.RenameFile = $Rename
+    $Item.update()
+    $wfrunoption = [microsoft.sharepoint.workflow.spworkflowrunoptions]::synchronous
+    $assoc = $List.WorkflowAssociations.GetAssociationByName($WorkflowName , "en-US")
+    $data = $assoc.AssociationData
+    $manager=$Web.site.WorkFlowManager
+    $wf = $manager.StartWorkFlow($List.GetItemById($Item.ID), $assoc, $data, $true)
+    }
+}
