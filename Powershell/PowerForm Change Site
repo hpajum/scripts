@@ -1,0 +1,44 @@
+#Get the List
+$Web = Get-SPWeb "http://********************"
+$List = $web.Lists["BPC PowerWebForms Customizations"]
+ 
+#Get all List Items
+$ListItems = $List.Items
+ 
+
+foreach($Item in $ListItems)
+{
+    
+
+    $var1=$Item["ListUrl"]
+    $var2=$var1.Replace('*************','**************')
+    $Item.ID
+    $Item["ListUrl"] = $var2
+    $Item.Update()
+}
+
+
+ 
+foreach($Item in $ListItems)
+{
+    
+
+    $var1=$Item["JSON"]
+    $var2=$var1.Replace('*************','**************')
+    $Item.ID
+    $Item["JSON"] = $var2
+    $Item.Update()
+}
+
+
+#if the Item Found
+foreach($Item in $ListItems)
+{
+    
+
+    $var1=$Item["Metadata"]
+    $var2=$var1.Replace('*************','**************')
+    $Item.ID
+    $Item["Metadata"] = $var2
+    $Item.Update()
+} 
