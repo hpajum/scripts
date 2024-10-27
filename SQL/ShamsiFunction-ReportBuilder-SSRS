@@ -1,0 +1,271 @@
+Public Total_lookup_Sum As Double = 0 
+Public Function Lookup_Sum(ByVal value As Double) As Double
+    Total_lookup_Sum = Total_lookup_Sum + value 
+    Return Total_lookup_Sum 
+End Function
+ Public Function ToShamsiDateTime(ByVal GregorianDate As DateTime, ByVal ShowTime As Boolean) As String
+       If GregorianDate = Nothing Then
+            Return ""
+        End If
+        Dim gSumOfDays(,) As Integer = {{0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365}, {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366}}
+        Dim hSumOfDays(,) As Integer = {{0, 31, 62, 93, 124, 155, 186, 216, 246, 276, 306, 336, 365}, {0, 31, 62, 93, 124, 155, 186, 216, 246, 276, 306, 336, 366}}
+        Dim Year As Integer = GregorianDate.Year - 621
+        Dim Month As Integer
+        Dim Day As Integer
+        Dim ToEid As Integer
+        Dim Elapsed As Integer
+        Dim B As Integer
+        B = (Year - 1) Mod 33
+        If (B = 1 Or B = 5 Or B = 9 Or B = 13 Or B = 17 Or B = 22 Or B = 26 Or B = 30) And Date.IsLeapYear(GregorianDate.Year) Then
+            ToEid = 80
+        Else
+            ToEid = 79
+        End If
+        If GregorianDate.DayOfYear <= ToEid Then
+            Year -= 1
+            Elapsed = 286 + GregorianDate.DayOfYear
+            B = Year Mod 33
+            If (B = 1 Or B = 5 Or B = 9 Or B = 13 Or B = 17 Or B = 22 Or B = 26 Or B = 30) And Not Date.IsLeapYear(GregorianDate.Year) Then
+                Elapsed += 1
+            End If
+        Else
+            Elapsed = GregorianDate.DayOfYear - ToEid
+        End If
+        Dim i As Integer
+        For i = 1 To 12
+            B = Year Mod 33
+            If (B = 1 Or B = 5 Or B = 9 Or B = 13 Or B = 17 Or B = 22 Or B = 26 Or B = 30) Then
+                If hSumOfDays(1, i) >= Elapsed Then
+                    Month = i
+                    Day = Elapsed - hSumOfDays(1, i - 1)
+                    Exit For
+                End If
+            Else
+                If hSumOfDays(0, i) >= Elapsed Then
+                    Month = i
+                    Day = Elapsed - hSumOfDays(0, i - 1)
+                    Exit For
+                End If
+            End If
+        Next
+        Return Year & "/" & IIf(Month < 10, "0" & Month, Month) & "/" & IIf(Day < 10, "0" & Day, Day) & IIf(ShowTime, " " & GregorianDate.ToShortTimeString(), "")
+    End Function
+
+    Function ToArabicNumber(txt As String) As String
+        Dim i, j As Integer
+        Dim c, result As String
+        j = Len(txt)
+        For i = 1 To j
+            c = mid(txt, i, 1)
+            If Asc(c) >= 48 And Asc(c) <= 57 Then
+                result = result + ChrW(Val(c) + 1776)
+            Else
+                result = result + c
+            End If
+        Next i
+        Return result
+    End Function
+    Public Function FixFormat(txt As String) As String
+        txt = txt.Replace("\r\n", vbcrlf)
+        txt = txt.Replace("\t", "          ")
+        Return txt
+    End Function
+
+    Function StrRev(ByVal txt As String) As String
+        Dim delimiter As String
+        Dim txts() As String
+        Dim txtlen As String
+        delimiter = "-"
+        If InStr(txt, "/") > 0 Then
+            delimiter = "/"
+        End If
+        txts = Split(txt, delimiter)
+        txtlen = txts.Length
+        If txtlen = 2 Then
+            StrRev = txts(1) & delimiter & txts(0)
+        ElseIf txtlen = 3 Then
+            StrRev = txts(2) & delimiter & txts(1) & delimiter & txts(0)
+        Else
+            StrRev = txt
+        End If
+    End Function
+      
+
+Public Function Conv(intAdad As Object) As String
+    If intAdad = 0 Then Conv = "": Exit Function
+    Dim Esm_1_10(10) As String
+        Esm_1_10(1) = "يک"
+        Esm_1_10(2) = "دو"
+        Esm_1_10(3) = "سه"
+        Esm_1_10(4) = "چهار"
+        Esm_1_10(5) = "پنج"
+        Esm_1_10(6) = "شش"
+        Esm_1_10(7) = "هفت"
+        Esm_1_10(8) = "هشت"
+        Esm_1_10(9) = "نه"
+        Esm_1_10(10) = "ده"
+
+    Dim Esm_11_20(10) As String
+        Esm_11_20(1) = "يازده"
+        Esm_11_20(2) = "دوازده"
+        Esm_11_20(3) = "سيزده"
+        Esm_11_20(4) = "چهارده"
+        Esm_11_20(5) = "پانزده"
+        Esm_11_20(6) = "شانزده"
+        Esm_11_20(7) = "هفده"
+        Esm_11_20(8) = "هجده"
+        Esm_11_20(9) = "نوزده"
+        Esm_11_20(10) = "بيست"
+    
+    Dim Esm_10Taei(10) As String
+        Esm_10Taei(1) = "ده"
+        Esm_10Taei(2) = "بيست"
+        Esm_10Taei(3) = "سي"
+        Esm_10Taei(4) = "چهل"
+        Esm_10Taei(5) = "پنجاه"
+        Esm_10Taei(6) = "شصت"
+        Esm_10Taei(7) = "هفتاد"
+        Esm_10Taei(8) = "هشتاد"
+        Esm_10Taei(9) = "نود"
+        Esm_10Taei(10) = "صد"
+    
+    Dim Esm_100Taei(10) As String
+        Esm_100Taei(1) = "صد"
+        Esm_100Taei(2) = "دويست"
+        Esm_100Taei(3) = "سيصد"
+        Esm_100Taei(4) = "چهارصد"
+        Esm_100Taei(5) = "پانصد"
+        Esm_100Taei(6) = "ششصد"
+        Esm_100Taei(7) = "هفتصد"
+        Esm_100Taei(8) = "هشتصد"
+        Esm_100Taei(9) = "نهصد"
+        Esm_100Taei(10) = "هزار"
+        
+    Dim intLen As Object
+    Dim intToEnd As Object
+    Dim intStart As Object
+    Dim intHezarSec As Object
+    Dim intMilionSec As Object
+    Dim intMiliardSec As Object
+    Dim intBilionSec As Object
+    Dim StrConv As String
+    
+    intLen = Len(CStr(intAdad))
+    
+    If intAdad < 20 Then
+        Select Case intAdad
+            Case Is <= 10
+                Conv = Esm_1_10(intAdad)
+            Case 11 To 20
+                Conv = Esm_11_20(intAdad - 10)
+        End Select
+    ElseIf intAdad < 100 Then '----> zire sad !
+        intStart = CLng(Mid(intAdad, 1, 1))
+        intToEnd = CLng(Mid(intAdad, 2, intLen - 1))
+        If intToEnd <> 0 Then
+            Conv = Esm_10Taei(intStart) & " و " & Conv(intToEnd)
+        Else
+            Conv = Esm_10Taei(intStart)
+        End If
+    ElseIf intAdad < 1000 Then '----> Sad !
+        intToEnd = CLng(Mid(intAdad, 2, intLen - 1))
+        intStart = CLng(Mid(intAdad, 1, 1))
+        If intToEnd <> 0 Then
+            Conv = Esm_100Taei(intStart) & " و " & Conv(intToEnd)
+        Else
+            Conv = Esm_100Taei(intStart)
+        End If
+    ElseIf intAdad < 1000000 Then '----> Hezar !
+        intHezarSec = CLng(Mid(intAdad, 1, intLen - 3))
+        StrConv = Conv(intHezarSec) & " هزار "
+        intStart = CLng(Mid(intAdad, intLen - 2, 3))
+        If intStart <> 0 Then
+            Conv = StrConv & " و " & Conv(intStart)
+        Else
+            Conv = StrConv
+        End If
+    ElseIf intAdad < 1000000000 Then '----> Milion !
+        intMilionSec = CLng(Mid(intAdad, 1, intLen - 6))
+        StrConv = Conv(intMilionSec) & " ميليون "
+        intStart = CLng(Mid(intAdad, intLen - 5, 7))
+        If intStart <> 0 Then
+            Conv = StrConv & " و " & Conv(intStart)
+        Else
+            Conv = StrConv
+        End If
+    ElseIf intAdad < 1000000000000# Then '----> Tiriard?!
+        intMiliardSec = CLng(Mid(intAdad, 1, intLen - 9))
+        StrConv = Conv(intMiliardSec) & " ميليارد "
+        intStart = CLng(Mid(intAdad, intLen - 8, 9))
+        If intStart <> 0 Then
+            Conv = StrConv & " و " & Conv(intStart)
+        Else
+            Conv = StrConv
+        End If
+    ElseIf intAdad < 1E+15 Then
+        intBilionSec = CLng(Mid(intAdad, 1, intLen - 12))
+        StrConv = Conv(intBilionSec) & " بيليون "
+        intStart = CLng(Mid(intAdad, intLen - 11, 12))
+        If intStart <> 0 Then
+            Conv = StrConv & " و " & Conv(intStart)
+        Else
+            Conv = StrConv
+        End If
+    End If
+End Function
+
+Public Function   GetPersianDate(dtGeorgian as DateTime) as string
+
+
+        dim  strPersianDate  as string
+
+
+        dim  strYear as string
+
+
+        dim strMonth as string
+
+
+        dim strDay as string
+
+
+        dim objPersiancal as System.Globalization.PersianCalendar
+
+
+        objPersiancal = new System.Globalization.PersianCalendar()
+
+
+        if(dtGeorgian =Nothing) then
+
+
+        return string.empty
+
+
+        end if
+
+
+
+
+
+        strYear = objPersiancal.GetYear(dtGeorgian).ToString()
+
+
+        strMonth = objPersiancal.GetMonth(dtGeorgian).ToString()
+
+
+        strDay = objPersiancal.GetDayOfMonth(dtGeorgian).ToString()
+
+
+        if (strDay.Length < 2) then strDay = "0" + strDay
+
+
+        if (strMonth.Length < 2)  then strMonth = "0" + strMonth
+
+
+        strPersianDate = strYear + "/" + strMonth + "/" + strDay
+
+
+        return strPersianDate
+
+
+        End Function
